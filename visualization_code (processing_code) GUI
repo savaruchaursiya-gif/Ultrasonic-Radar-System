@@ -1,0 +1,80 @@
+import processing.serial.*;
+
+Serial port;
+
+float angle = 0;
+float distance = 0;
+
+void setup(){
+
+  size(1000,600);
+
+  println(Serial.list());   // shows ports in console
+
+  port = new Serial(this,"COM5",9600);
+  port.bufferUntil('.');
+}
+
+void draw(){
+
+  background(0);
+
+  translate(width/2,height);
+
+  stroke(0,255,0);
+  strokeWeight(2);
+  noFill();
+
+  arc(0,0,800,800,PI,TWO_PI);
+  arc(0,0,600,600,PI,TWO_PI);
+  arc(0,0,400,400,PI,TWO_PI);
+  arc(0,0,200,200,PI,TWO_PI);
+
+  line(-400,0,400,0);
+
+  float sweepX = 400*cos(radians(angle));
+  float sweepY = -400*sin(radians(angle));
+
+  stroke(0,255,0);
+  strokeWeight(4);
+
+  line(0,0,sweepX,sweepY);
+
+  float d = distance*3;
+
+  if(distance < 80){
+
+    stroke(255,0,0);
+    strokeWeight(8);
+
+    point(d*cos(radians(angle)),
+          -d*sin(radians(angle)));
+  }
+
+  resetMatrix();
+
+  fill(0,255,0);
+  textSize(20);
+
+  text("ULTRASONIC RADAR SYSTEM",350,30);
+  text("Angle: "+angle+"°",50,50);
+  text("Distance: "+distance+" cm",50,80);
+}
+
+void serialEvent(Serial port){
+
+  String data = port.readStringUntil('.');
+
+  if(data != null){
+
+    data = trim(data);
+
+    int comma = data.indexOf(",");
+
+    if(comma > 0){
+
+      angle = float(data.substring(0,comma));
+      distance = float(data.substring(comma+1));
+    }
+  }
+}
